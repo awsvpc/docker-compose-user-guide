@@ -44,6 +44,7 @@ nano app/index.html
 Place the following content into this file:
 
 ~/compose-demo/app/index.html
+  <pre>
 <!doctype html>
 <html lang="en">
 <head>
@@ -58,6 +59,7 @@ Place the following content into this file:
 
 </body>
 </html>
+    <pre>
 Save and close the file when you’re done. If you are using nano, you can do that by typing CTRL+X, then Y and ENTER to confirm.
 
 Next, create the docker-compose.yml file:
