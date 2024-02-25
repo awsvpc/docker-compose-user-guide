@@ -1,0 +1,44 @@
+# Dockerfile
+FROM ubuntu:20.04
+ENV DEBIAN_FRONTEND noninteractive
+RUN apt-get update -y && \
+	apt-get install openssh-server \
+	ansible \
+	sudo -y
+RUN rm -rf /var/lib/apt/lists/*
+RUN useradd -s /bin/sh -d /home/ubuntu -m ubuntu
+RUN echo 'ubuntu  ALL=(ALL) NOPASSWD: ALL' >>  /etc/sudoers
+WORKDIR /home/ubuntu
+COPY ./ansible.cfg ansible.cfg
+COPY ./myhosts.ini myhosts.ini
+RUN chown -R ubuntu:ubuntu /home/ubuntu
+USER ubuntu
+ENTRYPOINT ["sleep"]
+CMD ["1000"]
+
+-----------------------------------------------------
+
+# Dockerfile folder structure
+$ ls -1
+ansible.cfg
+Dockerfile
+myhosts.ini
+
+------------------------------------------------------
+
+$ cat ansible.cfg 
+[defaults]
+inventory = ./myhosts.ini
+remote_user = ubuntu
+ask_pass = False
+host_key_checking = False
+private_key_file = /home/ubuntu/.ssh/eu-north.pem
+
+$ cat myhosts.ini 
+[all]
+xx.xx.xx.xx
+
+-------------------------------------------------------
+
+# Command to run the container
+docker run --rm -dt --name biba -v ~/.ssh/:/home/ubuntu/.ssh my-ubuntu:ssh
