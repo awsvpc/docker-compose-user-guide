@@ -1,0 +1,37 @@
+# To change the user or uid running the image, pass ANSIBLE_USER / ANSIBLE_USER_UID variables as arg during build (defaults to 'ansible' and '1000') : docker build -f ./Dockerfile_ansible_debian -t ptouron/ansible_ci:trixie-slim --build-arg ANSIBLE_USER=<anotherUser> --build-arg ANSIBLE_USER_UID=<anotherUid> .
+
+FROM debian:trixie-slim
+
+ARG ANSIBLE_USER="ansible"
+ARG ANSIBLE_USER_UID="1000"
+
+ENV container=docker
+ENV DEBIAN_FRONTEND=noninteractive
+ENV LC_ALL=C.UTF-8
+ENV PATH="$PATH:/home/${ANSIBLE_USER}/.venv/ansible/bin"
+ENV PIP_PACKAGES="ansible"
+
+RUN useradd --create-home --shell /bin/bash --uid ${ANSIBLE_USER_UID} ${ANSIBLE_USER}
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+       python3-venv \
+       locales-all \
+       openssh-client \
+       git \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* \
+              /tmp/* \
+              /var/tmp/* \
+              /usr/share/doc \
+              /usr/share/man
+
+USER ${ANSIBLE_USER}
+
+RUN mkdir -p -m=700 ~/.ssh \
+    && touch ~/.ssh/known_hosts \
+    && chmod 600 ~/.ssh/known_hosts \
+    && mkdir -p ~/.venv \
+    && python3 -m venv ~/.venv/ansible \
+    && ~/.venv/ansible/bin/python3 -m pip install --upgrade pip \
+    && ~/.venv/ansible/bin/python3 -m pip install ${PIP_PACKAGES}
