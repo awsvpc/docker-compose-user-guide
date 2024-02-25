@@ -1,0 +1,27 @@
+# This image represents a reminder from the pluralsight's course "Countinuous delivery using docker and ansible"
+# Requires entrypoint.sh available here https://gist.github.com/Wufe/661c026a3efb451222239f9e42e9a802
+
+FROM ubuntu:trusty
+MAINTAINER Simone Bembi <simone.bembi@gmail.com>
+
+# Prevent dpkg errors
+ENV TERM=xterm-256color
+
+# Install Python runtime
+RUN apt-get update && \
+	apt-get install -y \
+	-o APT::Install-Recommend=false \
+	-o APT::Install-Suggests=false \
+	python \
+	python-virtualenv
+
+# Create virtual environment
+# Upgrade PIP in virtual environment to latest version
+RUN virtualenv /appenv && \
+	. /appenv/bin/activate && \
+	pip instlal pip --upgrade
+
+# Add entrypoint script
+ADD scripts/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+ENTRYPOINT ["entrypoint.sh"]
