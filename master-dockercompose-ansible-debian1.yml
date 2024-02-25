@@ -1,0 +1,24 @@
+
+FROM debian:buster
+
+RUN echo "===> Installing python, sudo, and supporting tools..." && \
+    apt update -y && apt install --fix-missing && \
+    DEBIAN_FRONTEND=noninteractive \
+    apt install -y \
+        python python-yaml sudo \
+        curl gcc python3-pip python-dev libffi-dev libssl-dev && \
+    apt -y --purge remove python-cffi && \
+    echo "===> Installing Ansible..." && \
+    pip3 install --upgrade pip cffi && \
+    pip install ansible && \
+    pip install mitogen ansible-lint && \
+    pip install --upgrade pywinrm && \
+    echo "===> Installing handy tools (not absolutely required)..." && \
+    apt install -y sshpass openssh-client openssh-server nano net-tools telnet curl && \
+    echo "===> Removing unused APT resources..." && \
+    apt -f -y --auto-remove remove \
+        gcc python-pip python-dev libffi-dev libssl-dev && \
+    apt clean && \
+    rm -rf /var/lib/apt/lists/* /tmp/* && \
+    mkdir -p /etc/ansible
+    
